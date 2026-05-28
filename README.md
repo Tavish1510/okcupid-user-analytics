@@ -1,76 +1,75 @@
 # OkCupid User Analytics
 
-End-to-end exploratory analysis of ~60K OkCupid dating profiles. Demonstrates the data-engineering and statistical analysis stack: **Pandas / NumPy** for cleaning, imputation, outlier handling, and feature engineering; **SciPy** for correlation and hypothesis testing; **Matplotlib / Seaborn / Plotly** for visualization; and an interactive **Streamlit** dashboard.
+Exploratory analysis of ~60K OkCupid dating profiles — data cleaning, feature engineering, correlation analysis, and cohort comparisons — packaged as Jupyter notebooks plus an interactive Streamlit dashboard.
 
-## Headline analysis
+## Highlights
 
-The original motivation was to investigate whether **profile bio length correlates with income** — a hypothesis explored on Bumble's dataset (proprietary) and replicated here using the publicly-available OkCupid Profiles dataset on Kaggle.
+- Pearson correlation analysis (with 95% confidence intervals via Fisher z-transform) of bio length vs income, including cohort-conditional breakdowns by sex and age group.
+- Profile-completeness scoring across 20 fields and ordinal scales for `drinks`, `smokes`, `education`.
+- Welch's t-tests for cohort comparisons (e.g. male vs female bio length).
+- Streamlit dashboard with 4 tabs: Overview, Correlations, Cohort Comparison, Bio Analysis.
 
-The notebooks compute:
-- Overall Pearson correlation between income and bio length (with 95% CI)
-- Cohort-conditional correlations (by sex, age group)
-- Full pairwise correlation matrix across 11 numeric features
-- Cohort comparisons via t-tests and grouped aggregates
+## Stack
 
-Findings are reported honestly — see `notebooks/04_correlation_analysis.ipynb` for the actual r value, p-value, and confidence interval on your run.
+Pandas · NumPy · SciPy · scikit-learn · Matplotlib · Seaborn · Plotly · Streamlit · Jupyter
 
-## Project structure
+## Project layout
 
 ```
-okcupid-user-analytics/
-├── data/
-│   ├── README.md             # How to download the OkCupid dataset
-│   ├── raw/                  # Raw CSV (gitignored)
-│   └── processed/            # Cleaned + featured parquet (gitignored, regenerable)
-├── notebooks/
-│   ├── 01_exploration.ipynb          # Schema, distributions, missingness
-│   ├── 02_cleaning.ipynb             # Imputation, outlier capping, quality report
-│   ├── 03_feature_engineering.ipynb  # age_group, bio metrics, completeness, ordinal scales
-│   ├── 04_correlation_analysis.ipynb # Pearson r — overall, by sex, by age group
-│   └── 05_cohort_analysis.ipynb      # Cohort comparisons + cross-cohort heatmaps
-├── src/
-│   ├── cleaning.py    # impute_missing, cap_outliers, remove_implausible, quality reporting
-│   ├── features.py    # age groups, bio length, profile completeness, ordinal scales
-│   └── analysis.py    # pearson_correlation (with CI), cohort_pearson, ttest_two_groups
-├── streamlit_app/
-│   ├── app.py                # Interactive dashboard
-│   └── requirements.txt      # Lightweight deps for Streamlit Cloud deployment
-├── requirements.txt
-└── .gitignore
+src/
+  cleaning.py   # imputation, outlier capping, implausible-row removal, quality report
+  features.py   # age groups, bio metrics, completeness score, ordinal scales
+  analysis.py   # Pearson correlation w/ CI, cohort_pearson, ttest_two_groups
+notebooks/
+  01_exploration.ipynb           # EDA: schema, distributions, missingness
+  02_cleaning.ipynb              # cleaning pipeline + before/after quality stats
+  03_feature_engineering.ipynb   # derived features
+  04_correlation_analysis.ipynb  # correlation matrix + cohort-conditional r
+  05_cohort_analysis.ipynb       # group comparisons, t-tests, heatmaps
+streamlit_app/
+  app.py
+data/
+  raw/         # OkCupid CSV (gitignored — see data/README.md to download)
+  processed/   # cleaned parquet
 ```
 
-## Feature engineering
+## Derived features
 
-Beyond the raw columns, the pipeline derives:
+| Feature                | Description                                              |
+|------------------------|----------------------------------------------------------|
+| `age_group`            | Binned: 18–24, 25–29, 30–34, 35–44, 45+                  |
+| `bio_length`           | Character count of `essay0`                              |
+| `bio_word_count`       | Word count of `essay0`                                   |
+| `total_essay_length`   | Sum of all 10 essay fields                               |
+| `essays_written`       | Count of non-empty essays (0–10)                         |
+| `profile_completeness` | Fraction of 20 meaningful fields filled (0–1)            |
+| `drinks_score`         | Ordinal 0–5 (not at all → desperately)                   |
+| `smokes_score`         | Ordinal 0–4 (no → yes)                                   |
+| `education_score`      | Ordinal 0–5 (high school → PhD / Law / Med)              |
 
-| Feature | Description |
-|---|---|
-| `age_group` | Binned: 18-24, 25-29, 30-34, 35-44, 45+ |
-| `bio_length` | Character count of `essay0` (the "About me" field) |
-| `bio_word_count` | Word count of `essay0` |
-| `total_essay_length` | Sum of all 10 essay fields |
-| `essays_written` | Count of non-empty essays (out of 10) |
-| `profile_completeness` | 0-1 fraction of meaningful fields filled in |
-| `drinks_score` | Ordinal 0-5 (not at all → desperately) |
-| `smokes_score` | Ordinal 0-4 (no → yes) |
-| `education_score` | Ordinal 0-5 (HS → PhD/Law/Med) |
+## Cleaning pipeline
 
-## Cleaning strategy
+1. **Sentinel recoding** — `income == -1` (undisclosed) → `NaN`.
+2. **Imputation** — median for numeric, `"unknown"` for categorical, empty string for essays.
+3. **Outlier capping** — Winsorize at 0.5% / 99.5% quantiles.
+4. **Implausible row removal** — age outside 18–100, height outside 50"–84".
 
-1. **Sentinel recoding**: `income == -1` (not disclosed) → `NaN`
-2. **Imputation**:
-   - Numeric (`height`): median
-   - Categorical: `"unknown"` sentinel
-   - Essays: empty string
-3. **Outlier capping**: Winsorize at 0.5% / 99.5% quantiles
-4. **Implausible removal**: Age outside 18-100, height outside 50"-84"
+`quality_report` prints rows-fully-complete and rows-with-core-fields-complete before vs after.
 
-The pipeline reports % rows fully complete and % rows with core fields complete before vs after.
+## Quick start
 
-## Skills demonstrated
+```bash
+git clone https://github.com/Tavish1510/okcupid-user-analytics.git
+cd okcupid-user-analytics
+python -m venv .venv && source .venv/bin/activate    # or .\.venv\Scripts\Activate.ps1
+pip install -r requirements.txt
 
-- **Pandas / NumPy**: bulk dataframe transformations, groupby, pivot tables, missing-value strategies
-- **Statistical analysis**: Pearson correlation with 95% CI (Fisher z-transform), Welch's t-test, cohort-conditional analysis
-- **Feature engineering**: binning, ordinal scaling, composite scores (completeness)
-- **Visualization**: Matplotlib (notebooks), Plotly (interactive dashboard), Seaborn
-- **Project structure**: reusable `src/` modules, clean separation of cleaning / features / analysis, deployable Streamlit app
+# Download okcupid_profiles.csv into data/raw/ — see data/README.md
+
+jupyter notebook notebooks/           # run notebooks in order
+streamlit run streamlit_app/app.py    # interactive dashboard
+```
+
+## Dataset
+
+[OkCupid Profiles](https://www.kaggle.com/datasets/andrewmvd/okcupid-profiles) on Kaggle — ~60K dating profiles with 31 attributes (demographics, lifestyle, 10 essay fields).

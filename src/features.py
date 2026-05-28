@@ -26,10 +26,7 @@ def add_age_group(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def add_bio_length(df: pd.DataFrame, primary_essay: str = "essay0") -> pd.DataFrame:
-    """Length of essay0 (the 'About me' field) as the canonical 'bio length'.
-
-    Also adds combined essay length across all 10 essays.
-    """
+    """Bio (essay0) length and combined essay-length features."""
     out = df.copy()
     essay_cols = [c for c in [f"essay{i}" for i in range(10)] if c in out.columns]
 
