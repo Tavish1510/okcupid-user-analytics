@@ -14,5 +14,6 @@ build/
 data/raw/*.csv
 data/raw/*.zip
 
-# Processed data — regenerable via notebooks
-data/processed/
+# Processed parquet is committed so Streamlit Cloud has data on deploy.
+# Uncomment to gitignore if you'd rather regenerate locally:
+# data/processed/
