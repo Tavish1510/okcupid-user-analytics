@@ -67,38 +67,6 @@ Beyond the raw columns, the pipeline derives:
 
 The pipeline reports % rows fully complete and % rows with core fields complete before vs after.
 
-## Quick start
-
-```bash
-git clone https://github.com/Tavish1510/okcupid-user-analytics.git
-cd okcupid-user-analytics
-
-# Set up venv and install deps
-python -m venv .venv
-.\.venv\Scripts\Activate.ps1   # Windows
-# source .venv/bin/activate    # Mac/Linux
-pip install -r requirements.txt
-
-# Download dataset — see data/README.md
-# (manual download from Kaggle, or use kaggle CLI)
-
-# Run the notebooks in order
-jupyter notebook notebooks/
-
-# Launch the Streamlit dashboard
-cd streamlit_app
-streamlit run app.py
-```
-
-## Deploy to Streamlit Community Cloud
-
-1. Push this repo to GitHub
-2. Sign in to https://share.streamlit.io with your GitHub account
-3. **New app** → select this repo
-4. Main file: `streamlit_app/app.py`
-5. Requirements: `streamlit_app/requirements.txt`
-6. Once deployed, upload `data/processed/okcupid_features.parquet` via the Streamlit Cloud "Manage app" → "Files" panel (or commit a slim sampled version to the repo)
-
 ## Skills demonstrated
 
 - **Pandas / NumPy**: bulk dataframe transformations, groupby, pivot tables, missing-value strategies
