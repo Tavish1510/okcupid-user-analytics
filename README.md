@@ -1,6 +1,6 @@
 # OkCupid User Analytics
 
-Exploratory analysis of ~60K OkCupid dating profiles — data cleaning, feature engineering, correlation analysis, and cohort comparisons — packaged as Jupyter notebooks plus an interactive Streamlit dashboard.
+Exploratory analysis of ~60K OkCupid dating profiles — data cleaning, feature engineering, correlation analysis, and cohort comparisons — packaged as Jupyter notebooks plus an interactive Streamlit dashboard. Dashboard - https://okcupid-analytics.streamlit.app/
 
 ## Highlights
 
@@ -55,20 +55,6 @@ data/
 4. **Implausible row removal** — age outside 18–100, height outside 50"–84".
 
 `quality_report` prints rows-fully-complete and rows-with-core-fields-complete before vs after.
-
-## Quick start
-
-```bash
-git clone https://github.com/Tavish1510/okcupid-user-analytics.git
-cd okcupid-user-analytics
-python -m venv .venv && source .venv/bin/activate    # or .\.venv\Scripts\Activate.ps1
-pip install -r requirements.txt
-
-# Download okcupid_profiles.csv into data/raw/ — see data/README.md
-
-jupyter notebook notebooks/           # run notebooks in order
-streamlit run streamlit_app/app.py    # interactive dashboard
-```
 
 ## Dataset
 
